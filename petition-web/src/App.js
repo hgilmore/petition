@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import { Switch, Route } from 'react-router-dom';
 import './App.css';
+
+import Intro from './Intro';
 import Table from './Table';
 
 class App extends Component {
@@ -14,15 +16,17 @@ class App extends Component {
   render() {
     return (
 
-      <div className="App">
+        <div className="App">
 
-        <header className="App-header">
-          <h1 className="App-title">UK Petitions</h1>
-        </header>
+          <header className="App-header">
+            <h1 className="App-title">Petition</h1>
+          </header>
 
-        <Table />
-
-      </div>
+          <Switch>
+            <Route exact path='/' component={Intro}/>
+            <Route path='/petition/:id' component={Table}/>
+          </Switch>
+        </div>
     );
   }
 }

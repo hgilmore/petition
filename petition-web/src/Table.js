@@ -5,47 +5,73 @@ import 'react-table/react-table.css';
 
 class Table extends Component{
 
-	constructor(){
-		super();
+	constructor(props){
+		super(props);
+
+		// Set up an empty state to begin with as the method to get the data from
+		// the API is asynchronous. When this renders for the first time there 
+		// won't be anything other than the default state.
 		this.state = {
-			title: "This is from State!",
-		}
+			petition_id: props.match.params.id,
+			rows: [],
+			columns: [{
+				Header: 'Name',
+				accessor: 'name'
+			}]
+		};
 	}
+
+	componentWillMount(){
+		this._getPetitionData();
+	}
+
+	_getPetitionData = () => {
+		fetch('http://127.0.0.1:5000/petition/'+ this.state.petition_id)
+		.then(response => {
+			if (response.ok){
+				return response;
+			} else {
+				let errorMessage =
+					response.status(response.statusText),
+					error = new Error(errorMessage);
+					throw(error);
+			}
+		})
+		.then(response => response.json())
+		.then(json => {
+			let _columns = [];
+
+			// Get the headers out of the JSON
+			// Convert to the required object
+			for (let value of json.schema.fields) {
+				_columns.push({Header: value.name, accessor: value.name});	
+			}
+
+			this.setState({ rows: json.data, columns: _columns })
+			});
+		}
 
 	render(){
 
-		  const data = [{
-		    name: 'Tanner Linsley',
-		    age: 26,
-		    friend: {
-		      name: 'Jason Maurer',
-		      age: 23,
-		    }
-		  }
-		 	]
+			const data = this.state.rows;
+			const columns = this.state.columns;
 
-		  const columns = [{
-		    Header: 'Name',
-		    accessor: 'name' // String-based value accessors!
-		  }, {
-		    Header: 'Age',
-		    accessor: 'age',
-		    Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-		  }, {
-		    id: 'friendName', // Required because our accessor is not a string
-		    Header: 'Friend Name',
-		    accessor: d => d.friend.name // Custom value accessors!
-		  }, {
-		    Header: props => <span>Friend Age</span>, // Custom header components!
-		    accessor: 'friend.age'
-		  }]
+			console.log(typeof(columns));
 
 		return(
 
 			<ReactTable data={data} columns={columns} />
+
 			)
 	}
-
 }
 
 export default Table;
+
+/*
+	Other things to do.
+
+	- Percentage of UK population as a whole
+	- Name of the petition on the screen
+	- UI for picking a petition
+*/
